@@ -1,0 +1,88 @@
+<!DOCTYPE>
+<html>
+  <head>
+    <style type="text/css">
+      div#cs_status {
+        overflow: hidden;
+        position: absolute;
+        width: 80px;
+        height: 55px;
+      }
+      .cs_open {
+        background: url(open_closed.jpg) no-repeat;
+      }
+      .cs_closed {
+        background: url(open_closed.jpg) 0 -55px;
+      }
+    </style>
+
+  </head>
+  <body>
+    <div id="cs_status"></div>
+
+    <script>
+      function cs_open() {
+        const hours = [ // in ET
+            [11,20], // Sun 11 - 8
+            [12,20], // Mon 12 - 8
+            [12,20], // Tue 12 - 8
+            [12,20], // Wed 12 - 8
+            [12,20], // Thu 12 - 8
+            [11,22], // Fri 11 - 10
+            [11,22]  // Sat 11 - 10
+          ],
+          now = new Date()
+
+        let start_hour, end_hour
+
+        [start_hour, end_hour] = hours[now.getDay()]
+
+        // UTC offset from EST
+        start_hour += 5
+        end_hour += 5
+
+        // convert ET to UTC - UTC doesn't have daylight savings
+        Date.prototype.stdTimezoneOffset = function()  {
+          const jan = new Date(this.getFullYear(), 0, 1)
+          const jul = new Date(this.getFullYear(), 6, 1)
+          return Math.max(jan.getTimezoneOffset(), jul.getTimezoneOffset())
+        }
+
+        Date.prototype.isDstObserved = function() {
+          return this.getTimezoneOffset() < this.stdTimezoneOffset()
+        }
+
+        if (now.isDstObserved()) {
+          start_hour--
+          end_hour--
+        }
+
+        if (end_hour >= 24) end_hour -= 24
+
+        const set_time = h => {
+          d = new Date()
+          d.setUTCHours(h)
+          d.setUTCMinutes(0)
+          d.setUTCSeconds(0)
+          d.setDate(now.getDate())
+          return d
+        }
+
+        start_time = set_time(start_hour);
+        end_time   = set_time(end_hour);
+
+        // add a day if we rolled over
+        if (end_time < start_time) end_time.setDate(end_time.getDate() + 1);
+
+        // set our div tag to class: cs_open or cs_closed respectively
+        document.getElementById("cs_status").className = (
+          (now >= start_time) && (now <= end_time)) ? 
+            'cs_open' : 'cs_closed'
+      }
+
+      cs_open()
+      setInterval(function() { cs_open() }, 60 * 1000)
+    </script>
+
+  </body>
+</html>
