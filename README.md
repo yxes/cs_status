@@ -3,7 +3,7 @@ _dynamically displays open/closed to the web based on customer service hours_
 
 ## INSTALLATION
 
-None really. Just open the `index.html` file in your browser. It's all
+None really. Just open the [index.html](index.html) file in your browser. It's all
 self-contained.
 
 ## SYNOPSIS
